@@ -1,11 +1,10 @@
 # Import the Libraries``
 import io
-import sys
-import webbrowser
+from zipfile import ZipFile
+import pandas as pd
 import streamlit as st
 import pandas as pd
 import os
-
 
 st.set_page_config(page_title='York Archive', layout="wide")
 st.title('York Data Archive')
@@ -39,11 +38,21 @@ col3.write("Target")
 col4.write("Date")
 
 
+def read_zip(zip_fn, extract_fn=None):
+    zf = ZipFile(zip_fn)
+    if extract_fn:
+        return zf.read(extract_fn)
+    else:
+        return {name: zf.read(name) for name in zf.namelist()}
+
+
 @st.cache
 # Write the bash script
 def setup():
     file_dict_1m = pd.read_csv("file_dict_1m.csv")
-    file_dict_60cm = pd.read_csv("file_dict_60cm.csv")
+    file_dict_60cm = pd.read_csv(io.BytesIO(read_zip('file_dict_60cm.zip', 'file_dict_60cm.csv')))
+    #file_dict_60cm = pd.read_csv("file_dict_60cm.csv")
+
     folder_arr = []
     folder_id = []
     folder_indexes = []
